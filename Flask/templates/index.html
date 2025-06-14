@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Data Project - CSV Analysis</title>
+    <meta name="description" content="Student-friendly CSV data analysis interface">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #f3e8ff 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-elements {
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .bg-circle-1 {
+            position: absolute;
+            top: 80px;
+            left: 40px;
+            width: 128px;
+            height: 128px;
+            background: #fde047;
+            border-radius: 50%;
+        }
+
+        .bg-circle-2 {
+            position: absolute;
+            top: 160px;
+            right: 80px;
+            width: 96px;
+            height: 96px;
+            background: #f9a8d4;
+            border-radius: 50%;
+        }
+
+        .bg-circle-3 {
+            position: absolute;
+            bottom: 128px;
+            left: 25%;
+            width: 112px;
+            height: 112px;
+            background: #86efac;
+            border-radius: 50%;
+        }
+
+        .bg-circle-4 {
+            position: absolute;
+            bottom: 80px;
+            right: 33%;
+            width: 80px;
+            height: 80px;
+            background: #fb923c;
+            border-radius: 50%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .header-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1 0%, #9333ea 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .title {
+            font-size: 2.25rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #6366f1, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #4b5563;
+            max-width: 32rem;
+            margin: 0 auto;
+            line-height: 1.75;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, #6366f1, #9333ea);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .input {
+            width: 100%;
+            height: 4rem;
+            font-size: 1.125rem;
+            border: 2px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 0 0.75rem;
+            transition: border-color 0.3s ease;
+            background: white;
+            cursor: pointer;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        .file-info {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #059669;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 3.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #6366f1, #9333ea);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: scale(1.02);
+        }
+
+        .results-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(8px);
+            border-radius: 0.5rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+
+        .results-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: #6b7280;
+        }
+
+        .results-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .results-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .results-text {
+            color: #4b5563;
+            max-width: 24rem;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .toast.success {
+            border-color: #22c55e;
+            background: #f0fdf4;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: 1.875rem;
+            }
+            
+            .card-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+        <div class="bg-circle-1"></div>
+        <div class="bg-circle-2"></div>
+        <div class="bg-circle-3"></div>
+        <div class="bg-circle-4"></div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <div class="header-icon">
+                <div class="icon-circle">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <h1 class="title">學生課程點名定位分析系統</h1>
+            </div>
+            <p class="subtitle">
+                一個方便老師分析及了解課程學生點名情況的系統    
+            </p>
+        </div>
+
+        <div class="form-card">
+            <div class="card-header">
+                <h2 class="card-title">
+                    <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    CSV File Upload
+                </h2>
+            </div>
+            <div class="card-content">
+                <form action="/" method="post" enctype="multipart/form-data" id="csvForm">
+                    <div class="form-group">
+                        <label class="label" for="csvFile">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            CSV Data File
+                        </label>
+                        <input type="file" name="csvFile" id="csvFile" class="input" accept=".csv" required>
+                        <div id="fileInfo" class="file-info" style="display: none;">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span id="fileName"></span>
+                        </div>
+                    </div>
+
+                    <div style="padding-top: 1rem;">
+                        <button type="submit" class="submit-btn">
+                            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            Submit
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!-- ✅ 地圖區塊 -->
+        <div id="map-box" style="margin-top: 2rem;">
+            {% if map_html %}
+            <div style="border-radius: 0.5rem; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+                {{ map_html|safe }}
+            </div>
+            {% else %}
+            <div style="padding: 1rem; background-color: #fff7ed; border: 1px dashed #fdba74; border-radius: 0.5rem; color: #92400e; text-align: center;">
+                地圖尚未產生，請上傳 CSV 並送出後查看。
+            </div>
+            {% endif %}
+        </div>
+
+        {% if map_html %}
+        <div style="margin-top: 2rem;">
+            <form method="POST" action="/" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <input type="text" name="filter_name" placeholder="輸入學生姓名查詢定位紀錄" class="input" style="flex: 1;" />
+                <input type="date" name="filter_date" class="input" style="width: 200px;" />
+                <button type="submit" class="submit-btn" style="width: auto;">查詢</button>
+            </form>
+            
+        </div>
+        {% endif %}
+        
+        <!-- ✅ 圖表區塊 -->
+        <div id="charts-box" style="margin-top: 2rem;">
+            {% if chart_scripts %}
+                <div class="results-card">
+                    <h3 class="results-title">📊 點名統計圖表</h3>
+                    <div class="results-text">以下是依據你上傳資料生成的視覺化圖表。</div>
+                    <div style="margin-top: 2rem;">
+                        {{ chart_scripts|safe }}
+                    </div>
+                </div>
+            {% else %}
+                <div style="padding: 1rem; background-color: #eef2ff; border: 1px dashed #a5b4fc; border-radius: 0.5rem; color: #3730a3; text-align: center;">
+                    圖表尚未產生，請上傳 CSV 並送出後查看。
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('csvForm');
+            const fileInput = document.getElementById('csvFile');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const toast = document.getElementById('toast');
+
+            // File input change handler
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (!file.name.endsWith('.csv')) {
+                        showToast('Invalid file type. Please upload a CSV file.', 'error');
+                        fileInput.value = '';
+                        fileInfo.style.display = 'none';
+                        return;
+                    }
+                    fileName.textContent = `Selected: ${file.name}`;
+                    fileInfo.style.display = 'flex';
+                } else {
+                    fileInfo.style.display = 'none';
+                }
+            });
+
+            // Form submit handler
+            form.addEventListener('submit', function(e) {
+                const csvFile = fileInput.files[0];
+
+                if (!csvFile || csvFile.name === '') {
+                    e.preventDefault();
+                    showToast('Please select a CSV file to upload.', 'error');
+                    return;
+                }
+
+                console.log('Form submitted:', {
+                    csvFile: csvFile.name
+                });
+
+                showToast('CSV file is being uploaded! 📚', 'success');
+            });
+
+            // Toast function
+            function showToast(message, type) {
+                toast.textContent = message;
+                toast.className = `toast ${type}`;
+                toast.classList.add('show');
+                
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+name: Restart Hugging Face Space
+
+on:
+  schedule:
+    - cron: '0 0 * * *' 
+  workflow_dispatch:  
+jobs:
+  restart-and-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Restart Hugging Face Space
+        run: |
+          curl -X POST https://huggingface.co/api/spaces/hank710535/YZU-Attendance-Visualizer/restart \
+            -H "Authorization: Bearer ${{ secrets.HF_TOKEN }}"
+
+      - name: Update timestamp file
+        run: |
+          echo "Last restart: $(date -u)" > restart-log.txt
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "hank710535"
+          git config user.email "hank710535@gmail.com"
+          git add restart-log.txt
+          git commit -m "chore: daily restart $(date -u +'%Y-%m-%d %H:%M:%S')"
+          git push

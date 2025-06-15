@@ -270,9 +270,9 @@ def upload_csv():
             fig1.update_layout(xaxis_tickangle=-45, height=500)
 
             fig2 = go.Figure()
-            fig2.add_trace(go.Bar(name='InClassroom', x=summary_df["Name"], y=summary_df["InClassroom_Checkins"]))
-            fig2.add_trace(go.Bar(name='NearCampus', x=summary_df["Name"], y=summary_df["NearCampus_Checkins"]))
-            fig2.add_trace(go.Bar(name='Outside', x=summary_df["Name"], y=summary_df["Outside_Checkins"]))
+            fig2.add_trace(go.Bar(name='InClassroom', x=summary_df["Name"], y=summary_df["InClassroom_Checkins"],marker=dict(color='green')))
+            fig2.add_trace(go.Bar(name='NearCampus', x=summary_df["Name"], y=summary_df["NearCampus_Checkins"],marker=dict(color='yellow')))
+            fig2.add_trace(go.Bar(name='Outside', x=summary_df["Name"], y=summary_df["Outside_Checkins"],marker=dict(color='red')))
             fig2.update_layout(barmode='stack', title="各類型點名次數堆疊圖", xaxis_tickangle=-45, height=500)
 
             # === 📊 額外圖表 ===

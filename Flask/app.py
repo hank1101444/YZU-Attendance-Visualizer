@@ -1,8 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import os
-import pandas as pd
-import folium
-from io import BytesIO
+import json
+import secrets
 import pandas as pd
 import numpy as np
 import folium
@@ -12,9 +11,10 @@ from scipy.spatial import ConvexHull
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.io import to_html
-import secrets
-from flask import session
 
+# from linebot import LineBotApi, WebhookHandler
+# from linebot.exceptions import InvalidSignatureError
+# from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 app = Flask(__name__)
 app.secret_key = secrets.token_hex(16)
@@ -22,6 +22,58 @@ UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 SAVE_FOLDER = 'data'
 os.makedirs(SAVE_FOLDER, exist_ok=True)
+USER_DB = 'users.json'
+
+# LINE_CHANNEL_SECRET = 'YOUR_CHANNEL_SECRET'
+# LINE_CHANNEL_ACCESS_TOKEN = 'YOUR_CHANNEL_ACCESS_TOKEN'
+# line_bot_api = LineBotApi(LINE_CHANNEL_ACCESS_TOKEN)
+# handler = WebhookHandler(LINE_CHANNEL_SECRET)
+
+def load_users():
+    if not os.path.exists(USER_DB):
+        return {}
+    with open(USER_DB, 'r') as f:
+        return json.load(f)
+
+def save_users(users):
+    with open(USER_DB, 'w') as f:
+        json.dump(users, f)
+
+@app.route('/')
+def home():
+    if 'username' in session:
+        return redirect(url_for('upload_csv'))
+    return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        users = load_users()
+        if username in users and users[username]['password'] == password:
+            session['username'] = username
+            return redirect(url_for('upload_csv')) 
+        else:
+            flash('帳號或密碼錯誤', 'error')
+            return render_template('login.html', error='帳號或密碼錯誤')
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        email = request.form['email']
+        users = load_users()
+        if username in users:
+            flash('帳號已存在', 'error')
+        else:
+            users[username] = {'password': password, 'email': email}
+            save_users(users)
+            flash('註冊成功，請登入', 'success')
+            return redirect(url_for('login'))
+    return render_template('register.html')
 
 
 def analyze_attendance(csv_path, campus_coords, expansion_ratio=0.0001, k_clusters=6, html_output_path="data/op.html"):
@@ -36,6 +88,7 @@ def analyze_attendance(csv_path, campus_coords, expansion_ratio=0.0001, k_cluste
     df["Check-in Time"] = pd.to_numeric(df["Check-in Time"], errors="coerce")
     df["Check-in Time"] = pd.to_datetime(df["Check-in Time"], unit="D", origin="1899-12-30")
     df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
+    df["Checkin_Seconds"] = df["Check-in Time"].dt.hour * 3600 + df["Check-in Time"].dt.minute * 60 + df["Check-in Time"].dt.second
     df = df.dropna(subset=["Latitude", "Longitude", "Date"]).reset_index(drop=True)
 
     # 計算地圖中心
@@ -101,11 +154,13 @@ def analyze_attendance(csv_path, campus_coords, expansion_ratio=0.0001, k_cluste
     # 改為細分類統計
     summary = df.groupby("Name").agg(
         Total_Checkins=("Date", "count"),
-        Average_Checkin_Time=("Check-in Time", "mean"),
+        Average_Seconds=("Checkin_Seconds", "mean"),
         InClassroom_Checkins=("LocationType", lambda x: (x == "InClassroom").sum()),
         NearCampus_Checkins=("LocationType", lambda x: (x == "NearCampus").sum()),
         Outside_Checkins=("LocationType", lambda x: (x == "Outside").sum())
     ).reset_index()
+
+    summary["Average_Checkin_Time"] = pd.to_timedelta(summary["Average_Seconds"], unit="s").apply(lambda x: (pd.Timestamp("1900-01-01") + x).time())
 
     m.location = [24.970199417696264, 121.26651671619625]  # fallback: 台北
               
@@ -119,11 +174,18 @@ filter_name = None
 global_chart_scripts = ""
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/upload_csv', methods=['GET', 'POST'])
 def upload_csv():
     global filter_name
     global global_chart_scripts
     map_html = None  # 預設地圖為 None
+
+    if 'username' not in session:
+        return redirect(url_for('login'))
+
+    username = session['username']
+    user_folder = os.path.join(UPLOAD_FOLDER, username)
+    os.makedirs(user_folder, exist_ok=True)
 
     # 設定校園範圍座標
     campus_coords = [
@@ -151,6 +213,8 @@ def upload_csv():
             
             # 執行分析
             summary_df, m, full_df = analyze_attendance(filepath, campus_coords)
+            full_df.to_csv(os.path.join(user_folder, 'processed.csv'), index=False)
+            summary_df.to_csv(os.path.join(user_folder, 'summary.csv'), index=False, encoding='utf-8-sig')
 
             filter_name = request.form.get("filter_name")
 
@@ -195,9 +259,19 @@ def upload_csv():
             # === 📊 額外圖表 ===
 
             # 簽到時間分佈圖（Histogram）
-            summary_df["Hour"] = pd.to_datetime(summary_df["Average_Checkin_Time"]).dt.hour
-            fig3 = px.histogram(summary_df, x="Hour", nbins=24, title="平均簽到時間分佈（以時為單位）")
-            fig3.update_layout(bargap=0.1, height=400)
+            # 將平均簽到時間轉成「分鐘數」（0 ~ 1439）
+            summary_df["Checkin_HHMM"] = summary_df["Average_Checkin_Time"].apply(lambda x: x.strftime('%H:%M'))
+            fig3 = px.histogram(
+                summary_df.sort_values(by="Checkin_HHMM"),
+                x="Checkin_HHMM",
+                title="平均簽到時間分佈（HH:MM）",
+            )
+            fig3.update_layout(
+                xaxis_title="時間（HH:MM）",
+                xaxis_tickangle=-45,
+                height=400
+            )
+
 
             # 每天點名人數變化（折線圖）
             df_raw = pd.read_csv(filepath)
@@ -207,7 +281,7 @@ def upload_csv():
             df_raw["Date"] = pd.to_datetime(df_raw["點名日期"], errors="coerce")
             df_raw = df_raw.dropna(subset=["Date"])
             daily_counts = df_raw.groupby("Date").size().reset_index(name="Checkin_Count")
-            fig4 = px.line(daily_counts, x="Date", y="Checkin_Count", markers=True, title="每日點名人數變化")
+            fig4 = px.line(daily_counts, x="Date", y="Checkin_Count", markers=True, title="每週點名人數變化")
             fig4.update_layout(height=400)
 
             # 點名類型比例（Pie Chart）
@@ -281,9 +355,13 @@ def upload_csv():
 
             return render_template("index.html", map_html=map_html, chart_scripts=global_chart_scripts)
 
-    return render_template('index.html', map_html=map_html,chart_scripts=None)
+    return render_template('index.html', map_html=map_html, chart_scripts=None)
 
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=7860)
-

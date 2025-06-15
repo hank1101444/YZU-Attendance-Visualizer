@@ -314,6 +314,7 @@
     </style>
 </head>
 <body>
+    <a href="/login" class="top-left-button">回到登入</a>
     <div class="background-elements">
         <div class="bg-circle-1"></div>
         <div class="bg-circle-2"></div>
@@ -346,7 +347,7 @@
                 </h2>
             </div>
             <div class="card-content">
-                <form action="/" method="post" enctype="multipart/form-data" id="csvForm">
+                <form action="/upload_csv" method="post" enctype="multipart/form-data" id="csvForm">
                     <div class="form-group">
                         <label class="label" for="csvFile">
                             <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -389,7 +390,7 @@
 
         {% if map_html %}
         <div style="margin-top: 2rem;">
-            <form method="POST" action="/" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <form method="POST" action="/upload_csv" style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
                 <input type="text" name="filter_name" placeholder="輸入學生姓名查詢定位紀錄" class="input" style="flex: 1;" />
                 <input type="date" name="filter_date" class="input" style="width: 200px;" />
                 <button type="submit" class="submit-btn" style="width: auto;">查詢</button>

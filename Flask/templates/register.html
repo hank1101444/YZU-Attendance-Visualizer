@@ -1,0 +1,350 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>註冊 | 課程點名分析系統</title>
+    <meta name="description" content="課程點名分析系統註冊頁面">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 50%, #f3e8ff 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .background-elements {
+            position: absolute;
+            inset: 0;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .bg-circle-1 {
+            position: absolute;
+            top: 80px;
+            left: 40px;
+            width: 128px;
+            height: 128px;
+            background: #fde047;
+            border-radius: 50%;
+        }
+
+        .bg-circle-2 {
+            position: absolute;
+            top: 160px;
+            right: 80px;
+            width: 96px;
+            height: 96px;
+            background: #f9a8d4;
+            border-radius: 50%;
+        }
+
+        .bg-circle-3 {
+            position: absolute;
+            bottom: 128px;
+            left: 25%;
+            width: 112px;
+            height: 112px;
+            background: #86efac;
+            border-radius: 50%;
+        }
+
+        .bg-circle-4 {
+            position: absolute;
+            bottom: 80px;
+            right: 33%;
+            width: 80px;
+            height: 80px;
+            background: #fb923c;
+            border-radius: 50%;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 32rem;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .header-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .icon-circle {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #6366f1 0%, #9333ea 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon {
+            width: 24px;
+            height: 24px;
+            color: white;
+        }
+
+        .title {
+            font-size: 2.25rem;
+            font-weight: bold;
+            background: linear-gradient(to right, #6366f1, #9333ea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.125rem;
+            color: #4b5563;
+            max-width: 32rem;
+            margin: 0 auto;
+            line-height: 1.75;
+        }
+
+        .form-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 0.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .card-header {
+            background: linear-gradient(to right, #6366f1, #9333ea);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            text-align: center;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .input {
+            width: 100%;
+            height: 4rem;
+            font-size: 1.125rem;
+            border: 2px solid #bbf7d0;
+            border-radius: 0.5rem;
+            padding: 0 0.75rem;
+            transition: border-color 0.3s ease;
+            background: white;
+            cursor: text;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #22c55e;
+        }
+
+        .submit-btn {
+            width: 100%;
+            height: 3.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            background: linear-gradient(to right, #6366f1, #9333ea);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .submit-btn:hover {
+            background: linear-gradient(to right, #4f46e5, #7c3aed);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            transform: scale(1.02);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .login-link {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .login-link a {
+            color: #6366f1;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: #4f46e5;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .title {
+                font-size: 1.875rem;
+            }
+            
+            .card-content {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-elements">
+      <div class="bg-circle-1"></div>
+      <div class="bg-circle-2"></div>
+      <div class="bg-circle-3"></div>
+      <div class="bg-circle-4"></div>
+    </div>
+  
+    <div class="container">
+      <div class="header">
+        <div class="header-icon">
+          <div class="icon-circle">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h1 class="title">註冊帳號</h1>
+        </div>
+        <p class="subtitle">建立一個新帳號以使用課程點名分析系統</p>
+      </div>
+  
+      <div class="form-card">
+        <div class="card-header">
+          <h2 class="card-title">
+            <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            註冊
+          </h2>
+        </div>
+        <div class="card-content">
+          <form method="POST" action="/register">
+            <div class="form-group">
+              <label class="label">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                帳號
+              </label>
+              <input type="text" name="username" class="input" required>
+            </div>
+            <div class="form-group">
+              <label class="label">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+                密碼
+              </label>
+              <input type="password" name="password" class="input" required>
+            </div>
+            <div class="form-group">
+              <label class="label">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                </svg>
+                Gmail
+              </label>
+              <input type="email" name="email" class="input" required>
+            </div>
+            <button type="submit" class="submit-btn">
+              <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              註冊
+            </button>
+          </form>
+          <div class="login-link">
+            <a href="/login">已有帳號？返回登入</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  </html>
+  

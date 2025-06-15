@@ -11,13 +11,25 @@ from scipy.spatial import ConvexHull
 import plotly.graph_objects as go
 import plotly.express as px
 from plotly.io import to_html
+import logging
+import logging
+logging.basicConfig(level=logging.INFO)
+
+
 
 # from linebot import LineBotApi, WebhookHandler
 # from linebot.exceptions import InvalidSignatureError
 # from linebot.models import MessageEvent, TextMessage, TextSendMessage
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)
+#app.secret_key = secrets.token_hex(16)
+app.secret_key = 'fk29vhs93_jq09as8v3lsk123lkfj34'
+
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_HTTPONLY'] = True
+
+
 UPLOAD_FOLDER = 'uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 SAVE_FOLDER = 'data'
@@ -53,7 +65,10 @@ def login():
         users = load_users()
         if username in users and users[username]['password'] == password:
             session['username'] = username
+            logging.info(f"✅ 登入成功，session: {dict(session)}")
+
             return redirect(url_for('upload_csv')) 
+            #return render_template('index.html', map_html=None,chart_scripts=None)
         else:
             flash('帳號或密碼錯誤', 'error')
             return render_template('login.html', error='帳號或密碼錯誤')
@@ -176,12 +191,16 @@ global_chart_scripts = ""
 
 @app.route('/upload_csv', methods=['GET', 'POST'])
 def upload_csv():
+    logging.info(f"🧪 當前 session: {dict(session)}")
+
     global filter_name
     global global_chart_scripts
     map_html = None  # 預設地圖為 None
 
     if 'username' not in session:
+        logging.info("❌ session['username'] 不存在！")
         return redirect(url_for('login'))
+
 
     username = session['username']
     user_folder = os.path.join(UPLOAD_FOLDER, username)

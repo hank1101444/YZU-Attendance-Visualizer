@@ -305,11 +305,18 @@ def upload_csv():
 
             # 點名類型比例（Pie Chart）
             total_counts = summary_df[["InClassroom_Checkins", "NearCampus_Checkins", "Outside_Checkins"]].sum()
+
             fig5 = px.pie(
                 names=total_counts.index,
                 values=total_counts.values,
                 title="點名類型比例（全體總和）",
-                hole=0.4  # donut chart
+                hole=0.4,
+                color=total_counts.index,
+                color_discrete_map={
+                    "InClassroom_Checkins": "green",
+                    "NearCampus_Checkins": "yellow",
+                    "Outside_Checkins": "red"
+                }
             )
             fig5.update_layout(height=400)
 

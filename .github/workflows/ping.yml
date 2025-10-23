@@ -21,10 +21,17 @@ jobs:
         run: |
           echo "Last restart: $(date -u)" > restart-log.txt
 
-      - name: Commit and push changes
-        run: |
-          git config user.name "hank710535"
-          git config user.email "hank710535@gmail.com"
-          git add restart-log.txt
-          git commit -m "chore: daily restart $(date -u +'%Y-%m-%d %H:%M:%S')"
-          git push
+
+      - name: Upload restart log
+        uses: actions/upload-artifact@v4
+        with:
+          name: restart-log
+          path: restart-log.txt
+          
+      # - name: Commit and push changes
+      #   run: |
+      #     git config user.name "hank710535"
+      #     git config user.email "hank710535@gmail.com"
+      #     git add restart-log.txt
+      #     git commit -m "chore: daily restart $(date -u +'%Y-%m-%d %H:%M:%S')"
+      #     git push
